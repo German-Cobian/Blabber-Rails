@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
+  get 'current_user/index'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  get '/current_user', to: 'current_user#index'
   
   devise_for :users, path: '', path_names: {
     sign_in: 'login',
