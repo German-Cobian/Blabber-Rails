@@ -5,6 +5,8 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable, :recoverable, :rememberable, :validatable,
           :jwt_authenticatable, jwt_revocation_strategy: self
 
+  has_many :conversations, dependent: :destroy
+
   validates :username, uniqueness: { case_sensitive: false }
   validates :email, presence: true
   #password is validated only upon creation
