@@ -6,7 +6,8 @@ class User < ApplicationRecord
           :jwt_authenticatable, jwt_revocation_strategy: self
 
   has_many :conversations, dependent: :destroy
-
+  has_many :messages
+  
   validates :username, uniqueness: { case_sensitive: false }
   validates :email, presence: true
   #password is validated only upon creation

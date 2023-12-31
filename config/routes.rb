@@ -18,5 +18,6 @@ Rails.application.routes.draw do
 
   resources :conversations do
     resources :participants, only: [:index]
+    resources :messages, only: [:index, :show, :create, :update, :destroy] 
   end
 end
