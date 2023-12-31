@@ -15,4 +15,8 @@ Rails.application.routes.draw do
 
   resources :users, only: [:index, :show, :create, :update, :destroy]
   resources :conversations, only: [:index, :show, :create, :destroy]
+
+  resources :conversations do
+    resources :participants, only: [:index]
+  end
 end
