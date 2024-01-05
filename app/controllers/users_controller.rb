@@ -13,12 +13,13 @@ class UsersController < ApplicationController
     if @user.nil?
       render status: 404, json: { error: 'User not found' }.to_json
     else
-      render json: UserSerializer.new(@user).serializable_hash[:data][:attributes], status: :ok
+      render json: user_with_conversations, status: :ok
     end
   end
 
   def create
     @user = User.new(user_params)
+    @participant_user = User.includes(conversations: { participants: :user }).find(params[:id])
 
     if @user.save
       render json: UserSerializer.new(@user).serializable_hash[:data][:attributes], status: :created
@@ -60,6 +61,47 @@ class UsersController < ApplicationController
 
 
   private
+
+  def user_with_conversations
+    user_data = UserSerializer.new(@user).serializable_hash[:data][:attributes]
+    conversations_data = @user.conversations.map do |conversation|
+      {
+        id: conversation.id,
+        title: conversation.title,
+        participants: conversation.participants.map do |participant|
+          {
+            user_id: participant.user.id,
+            username: participant.user.username
+          }
+        end,
+        messages: conversation.messages.map do |message|
+          {
+            id: message.id,
+            body: message.body,
+            user_id: message.user.id,
+            username: message.user.username
+          }
+        end
+      }
+    end
+
+    create_conversation_if_none
+
+    user_data.merge(conversations: conversations_data)
+  end
+
+  def create_conversation_if_none
+    return unless @user.conversations.empty?
+    return unless current_user
+
+    conversation_title = "#{current_user.username} & #{@user.username}"
+
+    conversation = Conversation.create(title: conversation_title, user: current_user)
+    conversation.participants.build(user: current_user)
+    conversation.participants.build(user: @user)
+    
+    conversation.save
+  end
 
   def user_params
     params.require(:user).permit(:username, :email, :password, :is_enabled, :role)
