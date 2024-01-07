@@ -6,4 +6,12 @@ class Conversation < ApplicationRecord
   
   validates :title, presence: true
   accepts_nested_attributes_for :participants
+
+  def self.find_by_participants(user1, user2)
+    joins(:participants)
+      .where(participants: { user_id: [user1.id, user2.id] })
+      .group(:id)
+      .having('COUNT(participants.id) = 2')
+      .first
+  end
 end

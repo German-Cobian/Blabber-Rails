@@ -3,4 +3,5 @@ class Participant < ApplicationRecord
   belongs_to :conversation
 
   validates :user, uniqueness: { scope: :conversation }
+
 end

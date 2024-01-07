@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @users = User.all
+    @users = User.all_except(current_user)
 
     render json: UserSerializer.new(@users).serializable_hash[:data], status: :ok
   end
@@ -94,13 +94,17 @@ class UsersController < ApplicationController
     return unless @user.conversations.empty?
     return unless current_user
 
+    existing_conversation = Conversation.find_by_participants(current_user, @user)
+    unless existing_conversation
+
     conversation_title = "#{current_user.username} & #{@user.username}"
 
     conversation = Conversation.create(title: conversation_title, user: current_user)
     conversation.participants.build(user: current_user)
     conversation.participants.build(user: @user)
-    
+
     conversation.save
+    end
   end
 
   def user_params
