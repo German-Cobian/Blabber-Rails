@@ -64,8 +64,15 @@ class UsersController < ApplicationController
 
   def user_with_conversations
     user_data = UserSerializer.new(@user).serializable_hash[:data][:attributes]
-    conversations_data = @user.conversations.map do |conversation|
-      {
+
+    conversation = Conversation.find_by_participants(current_user, @user)
+
+    unless conversation
+      create_conversation_if_none
+      conversation = Conversation.find_by_participants(current_user, @user)
+    end
+
+    conversations_data = {
         id: conversation.id,
         title: conversation.title,
         participants: conversation.participants.map do |participant|
@@ -83,28 +90,22 @@ class UsersController < ApplicationController
           }
         end
       }
-    end
-
-    create_conversation_if_none
 
     user_data.merge(conversations: conversations_data)
   end
 
   def create_conversation_if_none
-    return unless @user.conversations.empty?
-    return unless current_user
+    
+    return if @user == current_user
 
-    existing_conversation = Conversation.find_by_participants(current_user, @user)
-    unless existing_conversation
+      conversation_title = "#{current_user.username} & #{@user.username}"
 
-    conversation_title = "#{current_user.username} & #{@user.username}"
+      conversation = Conversation.create(title: conversation_title, user: current_user)
+      conversation.participants.build(user: current_user)
+      conversation.participants.build(user: @user)
 
-    conversation = Conversation.create(title: conversation_title, user: current_user)
-    conversation.participants.build(user: current_user)
-    conversation.participants.build(user: @user)
+      conversation.save
 
-    conversation.save
-    end
   end
 
   def user_params
