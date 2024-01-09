@@ -74,7 +74,8 @@ class UsersController < ApplicationController
 
     conversations_data = {
         id: conversation.id,
-        title: conversation.title,
+        title_1: conversation.title_1,
+        title_2: conversation.title_2,
         participants: conversation.participants.map do |participant|
           {
             user_id: participant.user.id,
@@ -97,10 +98,10 @@ class UsersController < ApplicationController
   def create_conversation_if_none
     
     return if @user == current_user
+      title_1 = current_user.username
+      title_2 = @user.username
 
-      conversation_title = "#{current_user.username} & #{@user.username}"
-
-      conversation = Conversation.create(title: conversation_title, user: current_user)
+      conversation = Conversation.create(title_1: title_1, title_2: title_2, user: current_user)
       conversation.participants.build(user: current_user)
       conversation.participants.build(user: @user)
 

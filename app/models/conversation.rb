@@ -4,7 +4,8 @@ class Conversation < ApplicationRecord
   has_many :participants, dependent: :destroy
   has_many :messages, dependent: :destroy
   
-  validates :title, presence: true
+  validates :title_1, presence: true
+  validates :title_2, presence: true
   accepts_nested_attributes_for :participants
 
   def self.find_by_participants(user1, user2)
