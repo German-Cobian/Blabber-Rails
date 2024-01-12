@@ -21,4 +21,8 @@ class User < ApplicationRecord
   def set_default_role
     self.role ||= :user
   end
+
+  def self.all_except(current_user)
+    where.not(id: current_user.id)
+  end
 end

@@ -17,10 +17,11 @@ class ConversationsController < ApplicationController
     # Fetch the users
     user_1 = current_user
     user_2 = User.find(params[:conversation][:user_id])
-
-    # Create a conversation with a title based on the usernames
-    @conversation = Conversation.new(title: "#{user_1.username} & #{user_2.username}", user: user_1)
     
+    title_1 = user_1.username
+    title_2 = user_2.username
+    @conversation = Conversation.new(title_1: title_1, title_2: title_2, user: user_1)
+
     # Build participants for the conversation
     @conversation.participants.build(user: user_1)
     @conversation.participants.build(user: user_2)
@@ -52,6 +53,6 @@ class ConversationsController < ApplicationController
   private
 
   def conversation_params
-    params.require(:conversation).permit(:title, :user_id)
+    params.require(:conversation).permit(:title_1, :title_2, :user_id)
   end
 end
