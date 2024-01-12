@@ -6,7 +6,7 @@ class Conversation < ApplicationRecord
   
   validates :title_1, presence: true
   validates :title_2, presence: true
-  accepts_nested_attributes_for :participants
+  accepts_nested_attributes_for :participants, allow_destroy: true
 
   def self.find_by_participants(user1, user2)
     joins(:participants)

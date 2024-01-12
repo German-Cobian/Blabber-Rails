@@ -44,21 +44,23 @@ class UsersController < ApplicationController
   end
 
   def destroy
-
     if current_user.admin?
-    user = User.find_by(id: params[:id])
+      user = User.find_by(id: params[:id])
 
       if user.nil?
         render status: 404, json: { error: 'User not found' }.to_json
       else
-        user.destroy
-        render json: { message: 'User deleted' }.to_json
+        if user_participant_in_conversation?(user)
+          render status: :unprocessable_entity, json: { error: 'User is a participant in a conversation' }.to_json
+        else
+          user.destroy
+          render json: { message: 'User deleted' }.to_json
+        end
       end
     else
       render json: { message: 'You are not authorized to perform this action' }, status: :unauthorized
     end
   end
-
 
   private
 
@@ -106,7 +108,10 @@ class UsersController < ApplicationController
       conversation.participants.build(user: @user)
 
       conversation.save
+  end
 
+  def user_participant_in_conversation?(user)
+    user.conversations.joins(:participants).exists?
   end
 
   def user_params
